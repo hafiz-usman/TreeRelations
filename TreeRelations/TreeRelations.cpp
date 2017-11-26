@@ -249,8 +249,80 @@ private:
     }
 };
 
+class Search 
+{
+public:
+    bool findValueInBST(Node* root, int val)
+    {
+        if (root == nullptr)
+        {
+            return false;
+        }
+        while (root != nullptr)
+        {
+            if (root->val > val)
+            {
+                root = root->left;
+            }
+            else if (root->val < val)
+            {
+                root = root->right;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (root == nullptr)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    // NOTE: This technique assumes both p and q exist in the BST!
+    Node* findLowestCommonAncestorBST(Node* root, int p, int q)
+    {
+        if (root == nullptr)
+        {
+            return root;
+        }
+
+        //cout << "NOTE: This technique assumes both p and q exist in the BST!" << endl;
+        // hence we'll first do a lookup for both values!
+        if (findValueInBST(root, p) == false ||
+            findValueInBST(root, q) == false)
+        {
+            return nullptr;
+        }
+
+        while (root != nullptr)
+        {
+            if (root->val > p &&
+                root->val > q)
+            {
+                root = root->left;
+            }
+            else if (root->val < p &&
+                    root->val < q)
+            {
+                root = root->right;
+            }
+            else
+            {
+                break;
+            }
+            return root;
+        }
+    }
+
+private:
+};
+
 void testTraversal(Node* root)
 {
+    cout << "TEST TRAVERSAL" << endl;
     Traversal t;
 
     auto preOrder = t.preOrder(root);
@@ -316,9 +388,57 @@ void testTraversal(Node* root)
     }
 }
 
+void testSearch(vector<int>& valuesToFind, Node* root)
+{
+    cout << "TEST SEARCH" << endl;
+    Search s;
+
+    cout << "Binary Search (assumes root is BST):" << endl;
+    vector<bool> toFind(valuesToFind.size() + 2, false);
+    for (int i = 0; i < toFind.size(); i++)
+    {
+        toFind[i] = s.findValueInBST(root, i);
+    }
+    for (int i = 0; i < toFind.size(); i++)
+    {
+        cout << "  found(" << i << ")=" << toFind[i] << endl;
+    }
+
+    cout << "Find Lowest Common Ancestor:" << endl;
+    int p, q;
+    vector<pair<int, int>> lcaCandidates{
+        { 10, 9 },
+        { 1, 9 },
+        { 2, 8 },
+        { 3, 7 },
+        { 5, 5 },
+        { 5, 1 },
+        { 5, 9 },
+        { 6, 9 },
+        { 1, 3 },
+        { 0, 5 },
+    };
+    for (auto a : lcaCandidates)
+    {
+        Node* temp = s.findLowestCommonAncestorBST(root, a.first, a.second);
+        if (temp != nullptr)
+        {
+            cout << "  lca(" << a.first << "," << a.second << ")="
+                << temp->val
+                << endl;
+        }
+        else
+        {
+            cout << "  lca(" << a.first << "," << a.second << ")="
+                << "DOESN\'T EXIST"
+                << endl;
+        }
+    }
+}
+
 int main()
 {
-    vector<int> input{0,1,2,3,4,5,6,7,8,9};
+    vector<int> input{1,2,3,4,5,6,7,8,9};
     cout << "INPUT: ";
     for (auto a : input)
     {
@@ -331,6 +451,9 @@ int main()
     root1 = cbb.createBalancedBST(input);
 
     testTraversal(root1);
+
+    testSearch(input, root1);
+
 
     return 0;
 }
