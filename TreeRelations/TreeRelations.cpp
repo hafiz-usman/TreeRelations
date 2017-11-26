@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <stack>
 #include <map>
 
 using namespace std;
@@ -128,6 +129,72 @@ public:
         return result;
     }
 
+    vector<vector<int>> zigZagOrder(Node* root, bool startLeftToRight)
+    {
+        vector<vector<int>> result;
+
+        if (root == nullptr)
+        {
+            return result;
+        }
+        stack<Node*> stk1;
+        stack<Node*> stk2;
+
+        if (startLeftToRight)
+        {
+            stk1.push(root);
+        }
+        else
+        {
+            stk2.push(root);
+        }
+
+        while (stk1.empty() == false || stk2.empty() == false)
+        {
+            vector<int> level;
+            while (stk1.empty() == false)
+            {
+                Node* temp = stk1.top();
+                stk1.pop();
+                level.push_back(temp->val);
+                if (temp->left != nullptr)
+                {
+                    stk2.push(temp->left);
+                }
+                if (temp->right != nullptr)
+                {
+                    stk2.push(temp->right);
+                }
+            }
+            if (level.size() > 0)
+            {
+                result.push_back(level);
+                level.clear();
+            }
+            while (stk2.empty() == false)
+            {
+                Node* temp = stk2.top();
+                stk2.pop();
+                level.push_back(temp->val);
+                if (temp->right != nullptr)
+                {
+                    stk1.push(temp->right);
+                }
+                if (temp->left != nullptr)
+                {
+                    stk1.push(temp->left);
+                }
+            }
+            if (level.size() > 0)
+            {
+                result.push_back(level);
+                level.clear();
+            }
+        }
+
+        return result;
+    }
+
 private:
     void _columnOrder(Node* root, int column, map<int, vector<int>>& columns)
     {
@@ -182,6 +249,73 @@ private:
     }
 };
 
+void testTraversal(Node* root)
+{
+    Traversal t;
+
+    auto preOrder = t.preOrder(root);
+    cout << "Preorder: " << endl;
+    for (auto a : preOrder)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
+    cout << "Inorder: " << endl;
+    auto inOrder = t.inOrder(root);
+    for (auto a : inOrder)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
+    cout << "Postorder: " << endl;
+    auto postOrder = t.postOrder(root);
+    for (auto a : postOrder)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
+    cout << "LevelOrder: " << endl;
+    auto levelOrder = t.levelOrder(root);
+    for (auto a : levelOrder)
+    {
+        for (auto b : a)
+        {
+            cout << b << " ";
+        }
+        cout << endl;
+    }
+    cout << "ColumnOrder: " << endl;
+    auto columnOrder = t.columnOrder(root);
+    for (auto a : columnOrder)
+    {
+        for (auto b : a)
+        {
+            cout << b << " ";
+        }
+        cout << endl;
+    }
+    cout << "ZigZagOrder (LtR): " << endl;
+    auto zigZagLtROrder = t.zigZagOrder(root, true);
+    for (auto a : zigZagLtROrder)
+    {
+        for (auto b : a)
+        {
+            cout << b << " ";
+        }
+        cout << endl;
+    }
+    cout << "ZigZagOrder(RtL): " << endl;
+    auto zigZagRtLOrder = t.zigZagOrder(root, false);
+    for (auto a : zigZagRtLOrder)
+    {
+        for (auto b : a)
+        {
+            cout << b << " ";
+        }
+        cout << endl;
+    }
+}
+
 int main()
 {
     vector<int> input{0,1,2,3,4,5,6,7,8,9};
@@ -196,49 +330,7 @@ int main()
     CreateBalancedBST cbb;
     root1 = cbb.createBalancedBST(input);
 
-    Traversal t;
-
-    auto preOrder = t.preOrder(root1);
-    cout << "Preorder: " << endl;
-    for (auto a : preOrder)
-    {
-        cout << a << " ";
-    }
-    cout << endl;
-    cout << "Inorder: " << endl;
-    auto inOrder = t.inOrder(root1);
-    for (auto a : inOrder)
-    {
-        cout << a << " ";
-    }
-    cout << endl;
-    cout << "Postorder: " << endl;
-    auto postOrder = t.postOrder(root1);
-    for (auto a : postOrder)
-    {
-        cout << a << " ";
-    }
-    cout << endl;
-    cout << "LevelOrder: " << endl;
-    auto levelOrder = t.levelOrder(root1);
-    for (auto a : levelOrder)
-    {
-        for (auto b : a)
-        {
-            cout << b << " ";
-        }
-        cout << endl;
-    }
-    cout << "ColumnOrder: " << endl;
-    auto columnOrder = t.columnOrder(root1);
-    for (auto a : columnOrder)
-    {
-        for (auto b : a)
-        {
-            cout << b << " ";
-        }
-        cout << endl;
-    }
+    testTraversal(root1);
 
     return 0;
 }
