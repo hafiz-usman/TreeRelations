@@ -7,6 +7,8 @@
 #include <queue>
 #include <stack>
 #include <map>
+#include <string>
+#include <assert.h>
 
 using namespace std;
 
@@ -47,6 +49,7 @@ private:
             return nullptr;
         }
         int mid = low + ((high-low) / 2);
+        assert(input[mid] >= 0);
         Node* root = new Node(input[mid]);
         root->left = _createBalancedBSTRecur(input, low, mid - 1);
         root->right = _createBalancedBSTRecur(input, mid+1, high);
@@ -252,7 +255,7 @@ private:
 class Search 
 {
 public:
-    bool findValueInBST(Node* root, int val)
+    bool findValueInBST(Node* root, int val, Node** result)
     {
         if (root == nullptr)
         {
@@ -278,6 +281,12 @@ public:
         {
             return false;
         }
+
+        if (result != nullptr)
+        {
+            *result = root;
+        }
+
         return true;
     }
 
@@ -291,8 +300,8 @@ public:
 
         //cout << "NOTE: This technique assumes both p and q exist in the BST!" << endl;
         // hence we'll first do a lookup for both values!
-        if (findValueInBST(root, p) == false ||
-            findValueInBST(root, q) == false)
+        if (findValueInBST(root, p, nullptr) == false ||
+            findValueInBST(root, q, nullptr) == false)
         {
             return nullptr;
         }
@@ -317,7 +326,99 @@ public:
         }
     }
 
+    Node* findInorderSuccessorBST(Node* root, int val)
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+        Node* p = nullptr;
+        bool valueExists = findValueInBST(root, val, &p);
+        if (valueExists == false)
+        {
+            return nullptr;
+        }
+        Node* result = _findInorderSuccessorBST(root, p);
+        return result;
+    }
+
+    Node* findInorderSuccessorBT(Node* root, int val)
+    {
+        Node* result = nullptr;
+        cout << "TODO: findInorderSuccessorBT()" << endl;
+        return result;
+    }
+
+    Node* findInorderPredecessorBST(Node* root, int val)
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+
+        Node* p = nullptr;
+        bool valueExists = findValueInBST(root, val, &p);
+        if (valueExists == false)
+        {
+            return nullptr;
+        }
+        Node* result = _findInorderPredecessorBST(root, p);
+        return result;
+    }
+
+    Node* findInorderPredecessorBT(Node* root, int val)
+    {
+        Node* result = nullptr;
+        cout << "TODO: findInorderPredecessorBT()" << endl;
+        return result;
+    }
+
 private:
+    Node* _findInorderPredecessorBST(Node* root, Node* p)
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+
+        // NOTE: Make sure you understand the '>=' being used here
+        if (root->val >= p->val)
+        {
+            return _findInorderPredecessorBST(root->left, p);
+        }
+        else
+        {
+            Node* right = _findInorderPredecessorBST(root->right, p);
+            if (right == nullptr)
+            {
+                return root;
+            }
+            return right;
+        }
+    }
+
+    Node* _findInorderSuccessorBST(Node* root, Node* p)
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+
+        // NOTE: Make sure you understand the '<=' being used here
+        if (root->val <= p->val)
+        {
+            return _findInorderSuccessorBST(root->right, p);
+        }
+        else
+        {
+            Node* left = _findInorderSuccessorBST(root->left, p);
+            if (left == nullptr)
+            {
+                return root;
+            }
+            return left;
+        }
+    }
 };
 
 void testTraversal(Node* root)
@@ -388,23 +489,23 @@ void testTraversal(Node* root)
     }
 }
 
-void testSearch(vector<int>& valuesToFind, Node* root)
+void testSearchBST(vector<int>& valuesToFind, Node* root)
 {
-    cout << "TEST SEARCH" << endl;
+    cout << "TEST SEARCH ON BSTs" << endl;
     Search s;
 
     cout << "Binary Search (assumes root is BST):" << endl;
     vector<bool> toFind(valuesToFind.size() + 2, false);
     for (int i = 0; i < toFind.size(); i++)
     {
-        toFind[i] = s.findValueInBST(root, i);
+        toFind[i] = s.findValueInBST(root, i, nullptr);
     }
     for (int i = 0; i < toFind.size(); i++)
     {
         cout << "  found(" << i << ")=" << toFind[i] << endl;
     }
 
-    cout << "Find Lowest Common Ancestor:" << endl;
+    cout << "Find Lowest Common Ancestor in BST:" << endl;
     int p, q;
     vector<pair<int, int>> lcaCandidates{
         { 10, 9 },
@@ -434,6 +535,48 @@ void testSearch(vector<int>& valuesToFind, Node* root)
                 << endl;
         }
     }
+
+    cout << "Inorder Successor (assumes root is BST):" << endl;
+    vector<int> toFindSuccessor(valuesToFind.size() + 2, false);
+    for (int i = 0; i < toFindSuccessor.size(); i++)
+    {
+        Node* temp = s.findInorderSuccessorBST(root, i);
+        if (temp == nullptr)
+        {
+            toFindSuccessor[i] = -1;
+        }
+        else
+        {
+            toFindSuccessor[i] = temp->val;
+        }
+    }
+    for (int i = 0; i < toFindSuccessor.size(); i++)
+    {
+        cout << "  successor(" << i << ")=" 
+            << ((toFindSuccessor[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindSuccessor[i]))
+            << endl;
+    }
+
+    cout << "Inorder Predecessor (assumes root is BST):" << endl;
+    vector<int> toFindPredecessor(valuesToFind.size() + 2, false);
+    for (int i = 0; i < toFindPredecessor.size(); i++)
+    {
+        Node* temp = s.findInorderPredecessorBST(root, i);
+        if (temp == nullptr)
+        {
+            toFindPredecessor[i] = -1;
+        }
+        else
+        {
+            toFindPredecessor[i] = temp->val;
+        }
+    }
+    for (int i = 0; i < toFindPredecessor.size(); i++)
+    {
+        cout << "  predecessor(" << i << ")="
+            << ((toFindPredecessor[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindPredecessor[i]))
+            << endl;
+    }
 }
 
 int main()
@@ -452,7 +595,7 @@ int main()
 
     testTraversal(root1);
 
-    testSearch(input, root1);
+    testSearchBST(input, root1);
 
 
     return 0;
