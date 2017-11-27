@@ -501,12 +501,14 @@ void testTraversal(Node* root)
 
     auto preOrder = t.preOrder(root);
     cout << "Preorder: " << endl;
+    cout << "  ";
     for (auto a : preOrder)
     {
         cout << a << " ";
     }
     cout << endl;
     cout << "Inorder: " << endl;
+    cout << "  ";
     auto inOrder = t.inOrder(root);
     for (auto a : inOrder)
     {
@@ -514,6 +516,7 @@ void testTraversal(Node* root)
     }
     cout << endl;
     cout << "Postorder: " << endl;
+    cout << "  ";
     auto postOrder = t.postOrder(root);
     for (auto a : postOrder)
     {
@@ -524,6 +527,7 @@ void testTraversal(Node* root)
     auto levelOrder = t.levelOrder(root);
     for (auto a : levelOrder)
     {
+        cout << "  ";
         for (auto b : a)
         {
             cout << b << " ";
@@ -534,6 +538,7 @@ void testTraversal(Node* root)
     auto columnOrder = t.columnOrder(root);
     for (auto a : columnOrder)
     {
+        cout << "  ";
         for (auto b : a)
         {
             cout << b << " ";
@@ -544,6 +549,7 @@ void testTraversal(Node* root)
     auto zigZagLtROrder = t.zigZagOrder(root, true);
     for (auto a : zigZagLtROrder)
     {
+        cout << "  ";
         for (auto b : a)
         {
             cout << b << " ";
@@ -554,6 +560,7 @@ void testTraversal(Node* root)
     auto zigZagRtLOrder = t.zigZagOrder(root, false);
     for (auto a : zigZagRtLOrder)
     {
+        cout << "  ";
         for (auto b : a)
         {
             cout << b << " ";
