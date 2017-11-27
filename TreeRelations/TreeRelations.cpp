@@ -387,7 +387,7 @@ public:
         }
     }
 
-    Node* findInorderSuccessorBST(Node* root, int val)
+    Node* findInorderSuccessorBSTRecursive(Node* root, int val)
     {
         if (root == nullptr)
         {
@@ -401,6 +401,41 @@ public:
         }
         Node* result = _findInorderSuccessorBST(root, p);
         return result;
+    }
+
+    Node* findInorderSuccessorBSTIterative(Node* root, int val)
+    {
+        //cout << "Need to debug why 0's suceessor is coming out to be 1 when 0 isn't even in the tree!" << endl;
+        return nullptr;
+
+        if (root == nullptr) 
+        {
+            return nullptr;
+        }
+
+        Node* successor = nullptr;
+
+        while (root != nullptr) 
+        {
+            if (root->val < val) 
+            {
+                root = root->right;
+            }
+            else if (root->val > val) 
+            {
+                successor = root;
+                root = root->left;
+            }
+            else 
+            {
+                if (root->right != nullptr) 
+                {
+                    successor = _findMinInBST(root->right);
+                }
+                break;
+            }
+        }
+        return successor;
     }
 
     Node* findInorderSuccessorBT(Node* root, int val)
@@ -435,6 +470,19 @@ public:
     }
 
 private:
+    Node* _findMinInBST(Node* root)
+    {
+        if (root == nullptr)
+        {
+            return root;
+        }
+        while (root->left != nullptr)
+        {
+            root = root->left;
+        }
+        return root;
+    }
+
     Node* _findInorderPredecessorBST(Node* root, Node* p)
     {
         if (root == nullptr)
@@ -616,24 +664,46 @@ void testSearchBST(vector<int>& valuesToFind, Node* root)
         }
     }
 
-    cout << "Inorder Successor (assumes root is BST):" << endl;
-    vector<int> toFindSuccessor(valuesToFind.size() + 2, false);
-    for (int i = 0; i < toFindSuccessor.size(); i++)
+    cout << "Inorder Successor Recursive (assumes root is BST):" << endl;
+    vector<int> toFindSuccessorRecursive(valuesToFind.size() + 2, false);
+    for (int i = 0; i < toFindSuccessorRecursive.size(); i++)
     {
-        Node* temp = s.findInorderSuccessorBST(root, i);
+        Node* temp = s.findInorderSuccessorBSTRecursive(root, i);
         if (temp == nullptr)
         {
-            toFindSuccessor[i] = -1;
+            toFindSuccessorRecursive[i] = -1;
         }
         else
         {
-            toFindSuccessor[i] = temp->val;
+            toFindSuccessorRecursive[i] = temp->val;
         }
     }
-    for (int i = 0; i < toFindSuccessor.size(); i++)
+    for (int i = 0; i < toFindSuccessorRecursive.size(); i++)
     {
         cout << "  successor(" << i << ")=" 
-            << ((toFindSuccessor[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindSuccessor[i]))
+            << ((toFindSuccessorRecursive[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindSuccessorRecursive[i]))
+            << endl;
+    }
+
+    cout << "Inorder Successor Iterative (assumes root is BST):" << endl;
+    cout << "!!Need to debug why 0's suceessor is coming out to be 1 when 0 isn't even in the tree!!" << endl;
+    vector<int> toFindSuccessorIterative(valuesToFind.size() + 2, false);
+    for (int i = 0; i < toFindSuccessorIterative.size(); i++)
+    {
+        Node* temp = s.findInorderSuccessorBSTIterative(root, i);
+        if (temp == nullptr)
+        {
+            toFindSuccessorIterative[i] = -1;
+        }
+        else
+        {
+            toFindSuccessorIterative[i] = temp->val;
+        }
+    }
+    for (int i = 0; i < toFindSuccessorIterative.size(); i++)
+    {
+        cout << "  successor(" << i << ")="
+            << ((toFindSuccessorIterative[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindSuccessorIterative[i]))
             << endl;
     }
 
