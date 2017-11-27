@@ -405,37 +405,47 @@ public:
 
     Node* findInorderSuccessorBSTIterative(Node* root, int val)
     {
-        //cout << "Need to debug why 0's suceessor is coming out to be 1 when 0 isn't even in the tree!" << endl;
-        return nullptr;
+        Node* p = nullptr;
+        {
+            // this block shouldn't be part of the complexity analysis if the Node* is passed in instead of just the value
+            bool temp = findValueInBST(root, val, &p);
+            if (temp == false)
+            {
+                return nullptr;
+            }
+        }
 
-        if (root == nullptr) 
+        if (root == nullptr || p == nullptr)
         {
             return nullptr;
         }
-
-        Node* successor = nullptr;
-
-        while (root != nullptr) 
+        
+        if (p->right != nullptr)
         {
-            if (root->val < val) 
+            return _findMinInBST(p->right);
+        }
+
+        Node* sucessor = nullptr;
+
+        // Start from root and search for successor down the tree
+        while (root != nullptr)
+        {
+            if (root->val > p->val) //(p->val < root->val)
+            {
+                sucessor = root;
+                root = root->left;
+            }
+            else if (root->val < p->val) //(p->val > root->val)
             {
                 root = root->right;
             }
-            else if (root->val > val) 
+            else
             {
-                successor = root;
-                root = root->left;
-            }
-            else 
-            {
-                if (root->right != nullptr) 
-                {
-                    successor = _findMinInBST(root->right);
-                }
                 break;
             }
         }
-        return successor;
+
+        return sucessor;
     }
 
     Node* findInorderSuccessorBT(Node* root, int val)
@@ -686,7 +696,6 @@ void testSearchBST(vector<int>& valuesToFind, Node* root)
     }
 
     cout << "Inorder Successor Iterative (assumes root is BST):" << endl;
-    cout << "!!Need to debug why 0's suceessor is coming out to be 1 when 0 isn't even in the tree!!" << endl;
     vector<int> toFindSuccessorIterative(valuesToFind.size() + 2, false);
     for (int i = 0; i < toFindSuccessorIterative.size(); i++)
     {
