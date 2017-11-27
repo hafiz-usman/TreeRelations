@@ -57,6 +57,67 @@ private:
     }
 };
 
+class Properties
+{
+public:
+    int heightOfBT(Node* root)
+    {
+        return _heightOfBT(root);
+    }
+
+    bool isValidBST(Node* root)
+    {
+        Node* prev = nullptr;
+        return _isValidBST(root, prev);
+    }
+
+private:
+    bool _isValidBST(Node* root, Node*& prev)
+    {
+        if (root == nullptr)
+        {
+            return true;
+        }
+        bool temp = _isValidBST(root->left, prev);
+        if (temp == false)
+        {
+            return false;
+        }
+        if (prev != nullptr)
+        {
+            if (root->val <= prev->val)
+            {
+                return false;
+            }
+        }
+        prev = root;
+        return _isValidBST(root->right, prev);
+    }
+
+    int _heightOfBT(Node* root)
+    {
+        if (root == nullptr)
+        {
+            return 0;
+        }
+
+        int temp1 = _heightOfBT(root->left);
+        if (temp1 == -1)
+        {
+            return temp1;
+        }
+        int temp2 = _heightOfBT(root->right);
+        if (temp2 == -1)
+        {
+            return temp2;
+        }
+
+        // For checking complete BT, here you can check if the difference between left and right subtrees is greater than 1. Return -1 if not
+
+        return (max(temp1, temp2) + 1);
+    }
+};
+
 class Traversal
 {
 public:
@@ -421,6 +482,18 @@ private:
     }
 };
 
+void testProperties(Node* root)
+{
+    cout << "TEST PROPERTIES OF TREES" << endl;
+    Properties p;
+
+    int height = p.heightOfBT(root);
+    cout << "Height = " << height << endl;
+
+    bool isValidBST = p.isValidBST(root);
+    cout << "Is Valid BST = " << isValidBST << endl;
+}
+
 void testTraversal(Node* root)
 {
     cout << "TEST TRAVERSAL" << endl;
@@ -582,7 +655,7 @@ void testSearchBST(vector<int>& valuesToFind, Node* root)
 int main()
 {
     vector<int> input{1,2,3,4,5,6,7,8,9};
-    cout << "INPUT: ";
+    cout << "INPUT: " << endl;
     for (auto a : input)
     {
         cout << a << " ";
@@ -592,6 +665,8 @@ int main()
     Node* root1 = nullptr;
     CreateBalancedBST cbb;
     root1 = cbb.createBalancedBST(input);
+
+    testProperties(root1);
 
     testTraversal(root1);
 
