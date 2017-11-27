@@ -284,7 +284,96 @@ public:
         return result;
     }
 
+    vector<int> boundaryAnticlockwise(Node* root)
+    {
+        vector<int> result;
+        if (root == nullptr)
+        {
+            return result;
+        }
+        result.push_back(root->val);
+        _leftBoundary(root->left, result);
+        _bottomBoundary(root->left, result);
+        _bottomBoundary(root->right, result);
+        _rightBoundary(root->right, result);
+        return result;
+    }
+
 private:
+    void _leftBoundary(Node* root, vector<int>& result)
+    {
+        while (root != nullptr)
+        {
+            if (root->left == nullptr && root->right == nullptr)
+            {
+                // both left and right are null is handled in the _bottomBoundary() case
+                break;
+            }
+
+            result.push_back(root->val);
+
+            if (root->left != nullptr)
+            {
+                root = root->left;
+            }
+            else if (root->right != nullptr)
+            {
+                root = root->right;
+            }
+        }
+    }
+
+    void _bottomBoundary(Node* root, vector<int>& result)
+    {
+        if (root == nullptr)
+        {
+            return;
+        }
+        if (root->left == nullptr &&
+            root->right == nullptr)
+        {
+            result.push_back(root->val);
+        }
+        _bottomBoundary(root->left, result);
+        _bottomBoundary(root->right, result);
+    }
+
+    void _rightBoundary(Node* root, vector<int>& result)
+    {
+        // since the right boundary needs to be printed from bottom to top, we need to use a stack:
+        //      1. we could use our own stack and make this method iterative
+        //      2. OR use the system stack and make this a recursive method
+        // we're going with option 1 so that this method is somewhat similar in structure to the 
+        // _leftBoundary() method. Otherwise if we went with 2, we'd have to make both _leftBoundary()
+        // and _rightBoundary() be recursive to achieve the goal of similar structure.
+        stack<int> stk;
+        while (root != nullptr)
+        {
+            if (root->left == nullptr && root->right == nullptr)
+            {
+                // both left and right are null is handled in the _bottomBoundary() case
+                break;
+            }
+
+            stk.push(root->val);
+
+            if (root->right != nullptr)
+            {
+                root = root->right;
+            }
+            else if (root->left != nullptr)
+            {
+                root = root->left;
+            }
+        }
+
+        while (stk.empty() == false)
+        {
+            result.push_back(stk.top());
+            stk.pop();
+        }
+    }
+
     void _columnOrder(Node* root, int column, map<int, vector<int>>& columns)
     {
         if (root == nullptr)
@@ -667,6 +756,14 @@ void testTraversal(Node* root)
         }
         cout << endl;
     }
+    cout << "Boundary(Anticlockwise):" << endl;
+    auto boundaryAnticlockwise = t.boundaryAnticlockwise(root);
+    cout << "  ";
+    for (auto a : boundaryAnticlockwise)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
 }
 
 void testSearchBST(vector<int>& valuesToFind, Node* root)
