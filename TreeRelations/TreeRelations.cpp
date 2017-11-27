@@ -128,10 +128,35 @@ public:
         return result;
     }
 
-    vector<int> inOrder(Node* root)
+    vector<int> inOrderRecursive(Node* root)
     {
         vector<int> result;
         _inOrder(root, result);
+        return result;
+    }
+
+    vector<int> intOrderIterative(Node* root)
+    {
+        vector<int> result;
+        if (root == nullptr)
+        {
+            return result;
+        }
+
+        stack <Node*> stk;
+        _pushLeft(root, stk);
+        while (stk.empty() == false)
+        {
+            Node* temp = stk.top();
+            stk.pop();
+
+            result.push_back(temp->val);
+
+            if (temp->right)
+            {
+                _pushLeft(temp->right, stk);
+            }
+        }
         return result;
     }
 
@@ -310,6 +335,15 @@ private:
         _postOrder(root->left, result);
         _postOrder(root->right, result);
         result.push_back(root->val);
+    }
+
+    void _pushLeft(Node* root, stack<Node*>& stk)
+    {
+        while (root != nullptr)
+        {
+            stk.push(root);
+            root = root->left;
+        }
     }
 };
 
@@ -565,10 +599,18 @@ void testTraversal(Node* root)
         cout << a << " ";
     }
     cout << endl;
-    cout << "Inorder: " << endl;
+    cout << "Inorder Recursive: " << endl;
     cout << "  ";
-    auto inOrder = t.inOrder(root);
-    for (auto a : inOrder)
+    auto inOrderRecursive = t.inOrderRecursive(root);
+    for (auto a : inOrderRecursive)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
+    cout << "Inorder Iterative: " << endl;
+    cout << "  ";
+    auto inOrderIterative = t.intOrderIterative(root);
+    for (auto a : inOrderIterative)
     {
         cout << a << " ";
     }
