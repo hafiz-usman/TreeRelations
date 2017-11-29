@@ -441,10 +441,6 @@ class Search
 public:
     bool findValueInBST(Node* root, int val, Node** result)
     {
-        if (root == nullptr)
-        {
-            return false;
-        }
         while (root != nullptr)
         {
             if (root->val > val)
@@ -506,8 +502,8 @@ public:
             {
                 break;
             }
-            return root;
         }
+        return root;
     }
 
     Node* findInorderSuccessorBSTRecursive(Node* root, int val)
@@ -542,33 +538,60 @@ public:
         {
             return nullptr;
         }
-        
+
+        //
+        // Here's how the algo works: The successor of a given node can either be a (grand)child or a (grand)parent.
+        // Case 1:  If the given node has a right subtree, the successor would be a grand(child). It would be 
+        //          the node with the minimum value in the right subtree. That so happens to be the left-most 
+        //          node in the right sub-tree.
+        // Case 2:  If the given node does not have a right subtree, the successor needs to be searched for in
+        //          in the ancestory of the given node. Recall the pattern of in-order traversal:
+        //              visit(left)
+        //              parse(data)
+        //              visit(right)
+        //          Case 2a:    Now if the given node is the left subchild of the immediate ancestor, it means 
+        //                      that in an inorder traversal, the ancestor would not have parsed his data hence
+        //                      making him that particular ancestor the successor.
+        //          Case 2b:    If the given node is the right subchild of the immediate ancestor, it means that
+        //                      in the inorder traversal, the ancessort is done parsing his data hence the successor
+        //                      would have to be somewhere higher. In fact we keep going to older/higher ancestors
+        //                      till we find a node where we are the left subchild. If not found that means, we don't
+        //                      have a successor which also means the given node is the largest value in the BST.
+        // Now the code below works like this:
+        //      If needed, find given node (say p) from value
+        //      If p has right subchild, find deepest left node in right subtree
+        //          return deepest-left-node-in-right-subtree
+        //      Set ancestor pointer to root
+        //      Set successor pointer to nullptr
+        //      Do a Binary Search on BST till you find p
+        //          If you need to go left, update successor pointer. This way, we'll be getting the closest parent to
+        //              (grand)parent to child that's left of child.
+        //              Update ancestor to ancestor->left.
+        //          If you need to go right, just update ancestor to go right
+        //      return successor
+        //
+
         if (p->right != nullptr)
         {
             return _findMinInBST(p->right);
         }
 
-        Node* sucessor = nullptr;
-
-        // Start from root and search for successor down the tree
-        while (root != nullptr)
+        Node* ancesstor = root;
+        Node* successor = nullptr;
+        while (ancesstor != p)
         {
-            if (root->val > p->val) //(p->val < root->val)
+            if (ancesstor->val > p->val)
             {
-                sucessor = root;
-                root = root->left;
+                successor = ancesstor;
+                ancesstor = ancesstor->left;
             }
-            else if (root->val < p->val) //(p->val > root->val)
+            else // (root->val < p->val)
             {
-                root = root->right;
-            }
-            else
-            {
-                break;
+                ancesstor = ancesstor->right;
             }
         }
 
-        return sucessor;
+        return successor;
     }
 
     Node* findInorderSuccessorBT(Node* root, int val)
@@ -578,7 +601,7 @@ public:
         return result;
     }
 
-    Node* findInorderPredecessorBST(Node* root, int val)
+    Node* findInorderPredecessorBSTRecursive(Node* root, int val)
     {
         if (root == nullptr)
         {
@@ -859,7 +882,7 @@ void testSearchBST(vector<int>& valuesToFind, Node* root)
     vector<int> toFindPredecessor(valuesToFind.size() + 2, false);
     for (int i = 0; i < toFindPredecessor.size(); i++)
     {
-        Node* temp = s.findInorderPredecessorBST(root, i);
+        Node* temp = s.findInorderPredecessorBSTRecursive(root, i);
         if (temp == nullptr)
         {
             toFindPredecessor[i] = -1;
