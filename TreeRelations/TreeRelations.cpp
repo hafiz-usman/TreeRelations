@@ -24,21 +24,37 @@ struct Node
     {}
 };
 
-class CreateBalancedBST
+class BinaryTree
 {
 public:
-    Node* createBalancedBST(vector<int>& input)
+    BinaryTree() :
+        _root(nullptr)
+    {}
+
+    Node* getRoot()
     {
-        if (input.size() == 0)
+        return _root;
+    }
+
+    virtual void createTree(vector<int>& input)
+    {
+        // TODO!
+    }
+
+protected:
+    Node* _root;
+};
+
+class BinarySearchTree : public BinaryTree
+{
+public:
+    void createTree(vector<int>& input) override
+    {
+        if (_root != nullptr || input.size() == 0)
         {
-            return nullptr;
+            return;
         }
-
-        Node* root = nullptr;
-
-        root = _createBalancedBSTRecur(input, 0, input.size()-1);
-        
-        return root;
+        _root = _createBalancedBSTRecur(input, 0, input.size() - 1);
     }
 
 private:
@@ -48,11 +64,11 @@ private:
         {
             return nullptr;
         }
-        int mid = low + ((high-low) / 2);
+        int mid = low + ((high - low) / 2);
         assert(input[mid] >= 0);
         Node* root = new Node(input[mid]);
         root->left = _createBalancedBSTRecur(input, low, mid - 1);
-        root->right = _createBalancedBSTRecur(input, mid+1, high);
+        root->right = _createBalancedBSTRecur(input, mid + 1, high);
         return root;
     }
 };
@@ -60,15 +76,15 @@ private:
 class Properties
 {
 public:
-    int heightOfBT(Node* root)
+    int height(BinaryTree& bt)
     {
-        return _heightOfBT(root);
+        return _height(bt.getRoot());
     }
 
-    bool isValidBST(Node* root)
+    bool isValidBST(BinaryTree& bt)
     {
         Node* prev = nullptr;
-        return _isValidBST(root, prev);
+        return _isValidBST(bt.getRoot(), prev);
     }
 
 private:
@@ -94,19 +110,19 @@ private:
         return _isValidBST(root->right, prev);
     }
 
-    int _heightOfBT(Node* root)
+    int _height(Node* root)
     {
         if (root == nullptr)
         {
             return 0;
         }
 
-        int temp1 = _heightOfBT(root->left);
+        int temp1 = _height(root->left);
         if (temp1 == -1)
         {
             return temp1;
         }
-        int temp2 = _heightOfBT(root->right);
+        int temp2 = _height(root->right);
         if (temp2 == -1)
         {
             return temp2;
@@ -121,23 +137,24 @@ private:
 class Traversal
 {
 public:
-    vector<int> preOrder(Node* root)
+    vector<int> preOrder(BinaryTree& bt)
     {
         vector<int> result;
-        _preOrder(root, result);
+        _preOrder(bt.getRoot(), result);
         return result;
     }
 
-    vector<int> inOrderRecursive(Node* root)
+    vector<int> inOrderRecursive(BinaryTree& bt)
     {
         vector<int> result;
-        _inOrder(root, result);
+        _inOrder(bt.getRoot(), result);
         return result;
     }
 
-    vector<int> intOrderIterative(Node* root)
+    vector<int> inOrderIterative(BinaryTree& bt)
     {
         vector<int> result;
+        Node* root = bt.getRoot();
         if (root == nullptr)
         {
             return result;
@@ -160,16 +177,17 @@ public:
         return result;
     }
 
-    vector<int> postOrder(Node* root)
+    vector<int> postOrder(BinaryTree& bt)
     {
         vector<int> result;
-        _postOrder(root, result);
+        _postOrder(bt.getRoot(), result);
         return result;
     }
 
-    vector<vector<int>> levelOrder(Node* root)
+    vector<vector<int>> levelOrder(BinaryTree& bt)
     {
         vector<vector<int>> result;
+        Node* root = bt.getRoot();
         if (root == nullptr)
         {
             return result;
@@ -203,10 +221,10 @@ public:
         return result;
     }
 
-    vector<vector<int>> columnOrder(Node* root)
+    vector<vector<int>> columnOrder(BinaryTree& bt)
     {
         vector<vector<int>> result;
-
+        Node* root = bt.getRoot();
         map<int, vector<int>> columns;
         _columnOrder(root, 0, columns);
 
@@ -218,8 +236,9 @@ public:
         return result;
     }
 
-    vector<vector<int>> zigZagOrder(Node* root, bool startLeftToRight)
+    vector<vector<int>> zigZagOrder(BinaryTree& bt, bool startLeftToRight)
     {
+        Node* root = bt.getRoot();
         vector<vector<int>> result;
 
         if (root == nullptr)
@@ -284,8 +303,9 @@ public:
         return result;
     }
 
-    vector<int> boundaryAnticlockwise(Node* root)
+    vector<int> boundaryAnticlockwise(BinaryTree& bt)
     {
+        Node* root = bt.getRoot();
         vector<int> result;
         if (root == nullptr)
         {
@@ -439,8 +459,9 @@ private:
 class Search 
 {
 public:
-    bool findValueInBST(Node* root, int val, Node** result)
+    bool findValue(BinarySearchTree& bst, int val, Node** result)
     {
+        Node* root = bst.getRoot();
         while (root != nullptr)
         {
             if (root->val > val)
@@ -457,22 +478,24 @@ public:
             }
         }
 
-        if (root == nullptr)
+        bool ret = false;
+        if (root != nullptr)
         {
-            return false;
+            ret = true;
         }
 
         if (result != nullptr)
         {
-            *result = root;
+            *result = (ret ? root : nullptr);
         }
 
-        return true;
+        return ret;
     }
 
     // NOTE: This technique assumes both p and q exist in the BST!
-    Node* findLowestCommonAncestorBST(Node* root, int p, int q)
+    Node* findLowestCommonAncestor(BinarySearchTree& bst, int p, int q)
     {
+        Node* root = bst.getRoot();
         if (root == nullptr)
         {
             return root;
@@ -480,8 +503,8 @@ public:
 
         //cout << "NOTE: This technique assumes both p and q exist in the BST!" << endl;
         // hence we'll first do a lookup for both values!
-        if (findValueInBST(root, p, nullptr) == false ||
-            findValueInBST(root, q, nullptr) == false)
+        if (findValue(bst, p, nullptr) == false ||
+            findValue(bst, q, nullptr) == false)
         {
             return nullptr;
         }
@@ -506,14 +529,15 @@ public:
         return root;
     }
 
-    Node* findInorderSuccessorBSTRecursive(Node* root, int val)
+    Node* findInorderSuccessorRecursive(BinarySearchTree& bst, int val)
     {
+        Node* root = bst.getRoot();
         if (root == nullptr)
         {
             return nullptr;
         }
         Node* p = nullptr;
-        bool valueExists = findValueInBST(root, val, &p);
+        bool valueExists = findValue(bst, val, &p);
         if (valueExists == false)
         {
             return nullptr;
@@ -522,12 +546,13 @@ public:
         return result;
     }
 
-    Node* findInorderSuccessorBSTIterative(Node* root, int val)
+    Node* findInorderSuccessorIterative(BinarySearchTree& bst, int val)
     {
+        Node* root = bst.getRoot();
         Node* p = nullptr;
         {
             // this block shouldn't be part of the complexity analysis if the Node* is passed in instead of just the value
-            bool temp = findValueInBST(root, val, &p);
+            bool temp = findValue(bst, val, &p);
             if (temp == false)
             {
                 return nullptr;
@@ -578,7 +603,7 @@ public:
 
         Node* ancesstor = root;
         Node* successor = nullptr;
-        while (ancesstor != p)
+        while (ancesstor->val != p->val)
         {
             if (ancesstor->val > p->val)
             {
@@ -594,22 +619,23 @@ public:
         return successor;
     }
 
-    Node* findInorderSuccessorBT(Node* root, int val)
+    Node* findInorderSuccessor(BinaryTree& bt, int val)
     {
         Node* result = nullptr;
         cout << "TODO: findInorderSuccessorBT()" << endl;
         return result;
     }
 
-    Node* findInorderPredecessorBSTRecursive(Node* root, int val)
+    Node* findInorderPredecessorRecursive(BinarySearchTree& bst, int val)
     {
+        Node* root = bst.getRoot();
         if (root == nullptr)
         {
             return nullptr;
         }
 
         Node* p = nullptr;
-        bool valueExists = findValueInBST(root, val, &p);
+        bool valueExists = findValue(bst, val, &p);
         if (valueExists == false)
         {
             return nullptr;
@@ -618,7 +644,75 @@ public:
         return result;
     }
 
-    Node* findInorderPredecessorBT(Node* root, int val)
+    Node* findInorderPredecessorIterative(BinarySearchTree& bst, int val)
+    {
+        Node* root = bst.getRoot();
+        Node* p = nullptr;
+        {
+            // this block shouldn't be part of the complexity analysis if the Node* is passed in instead of just the value
+            bool temp = findValue(bst, val, &p);
+            if (temp == false)
+            {
+                return nullptr;
+            }
+        }
+
+        if (root == nullptr || p == nullptr)
+        {
+            return nullptr;
+        }
+
+        //
+        // Here's how the algo works: The predecessor of a given node can either be a (grand)child or a (grand)parent.
+        // Case 1:  If the given node has a left subtree, the successor would be a grand(child). It would be 
+        //          the node with the maximum value in the left subtree. That so happens to be the right-most 
+        //          node in the left sub-tree.
+        // Case 2:  If the given node does not have a left subtree, the successor needs to be searched for in
+        //          in the ancestory of the given node. Recall the pattern of in-order traversal:
+        //              visit(left)
+        //              parse(data)
+        //              visit(right)
+        //          Case 2a:    Now if the given node is the right subchild of the immediate ancestor, it means 
+        //                      that in an inorder traversal, the ancestor would have parsed his left and his data 
+        //                      hence making this particular ancesstor the predecessor.
+        //          Case 2b:    If the given node is the left subchild of the immediate ancestor, TODO!
+        // Now the code below works like this:
+        //      If needed, find given node (say p) from value
+        //      If p has left subchild, find deepest right node in left subtree
+        //          return deepest-right-node-in-left-subtree
+        //      Set ancestor pointer to root
+        //      Set predecessor pointer to nullptr
+        //      Do a Binary Search on BST till you find p
+        //          If you need to go right, update predecessor pointer. This way, we'll be getting the closest parent to
+        //              (grand)parent to child that's right of child.
+        //              Update ancestor to ancestor->left.
+        //          If you need to go left, just update ancestor to go left
+        //      return predecessor
+        //
+
+        if (p->left)
+        {
+            return _findMaxinBST(p->left);
+        }
+
+        Node* predecessor = nullptr;
+        Node* ancestor = root;
+        while (ancestor->val != p->val)
+        {
+            if (ancestor->val > p->val)
+            {
+                ancestor = ancestor->left;
+            }
+            else // ancestor->val < p->val
+            {
+                predecessor = ancestor;
+                ancestor = ancestor->right;
+            }
+        }
+        return predecessor;
+    }
+
+    Node* findInorderPredecessor(BinaryTree& bt, int val)
     {
         Node* result = nullptr;
         cout << "TODO: findInorderPredecessorBT()" << endl;
@@ -626,6 +720,20 @@ public:
     }
 
 private:
+
+    Node* _findMaxinBST(Node* root)
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+        while (root->right != nullptr)
+        {
+            root = root->right;
+        }
+        return root;
+    }
+
     Node* _findMinInBST(Node* root)
     {
         if (root == nullptr)
@@ -686,24 +794,31 @@ private:
     }
 };
 
-void testProperties(Node* root)
+void testProperties()
 {
     cout << "TEST PROPERTIES OF TREES" << endl;
-    Properties p;
+    vector<int> input{ 1,2,3,4,5,6,7,8,9 };
+    BinarySearchTree bst;
+    bst.createTree(input);
 
-    int height = p.heightOfBT(root);
+    Properties p;
+    int height = p.height(bst);
     cout << "Height = " << height << endl;
 
-    bool isValidBST = p.isValidBST(root);
+    bool isValidBST = p.isValidBST(bst);
     cout << "Is Valid BST = " << isValidBST << endl;
 }
 
-void testTraversal(Node* root)
+void testTraversal()
 {
+    vector<int> input{ 1,2,3,4,5,6,7,8,9 };
+    BinarySearchTree bst;
+    bst.createTree(input);
+
     cout << "TEST TRAVERSAL" << endl;
     Traversal t;
 
-    auto preOrder = t.preOrder(root);
+    auto preOrder = t.preOrder(bst);
     cout << "Preorder: " << endl;
     cout << "  ";
     for (auto a : preOrder)
@@ -713,7 +828,7 @@ void testTraversal(Node* root)
     cout << endl;
     cout << "Inorder Recursive: " << endl;
     cout << "  ";
-    auto inOrderRecursive = t.inOrderRecursive(root);
+    auto inOrderRecursive = t.inOrderRecursive(bst);
     for (auto a : inOrderRecursive)
     {
         cout << a << " ";
@@ -721,7 +836,7 @@ void testTraversal(Node* root)
     cout << endl;
     cout << "Inorder Iterative: " << endl;
     cout << "  ";
-    auto inOrderIterative = t.intOrderIterative(root);
+    auto inOrderIterative = t.inOrderIterative(bst);
     for (auto a : inOrderIterative)
     {
         cout << a << " ";
@@ -729,14 +844,14 @@ void testTraversal(Node* root)
     cout << endl;
     cout << "Postorder: " << endl;
     cout << "  ";
-    auto postOrder = t.postOrder(root);
+    auto postOrder = t.postOrder(bst);
     for (auto a : postOrder)
     {
         cout << a << " ";
     }
     cout << endl;
     cout << "LevelOrder: " << endl;
-    auto levelOrder = t.levelOrder(root);
+    auto levelOrder = t.levelOrder(bst);
     for (auto a : levelOrder)
     {
         cout << "  ";
@@ -747,7 +862,7 @@ void testTraversal(Node* root)
         cout << endl;
     }
     cout << "ColumnOrder: " << endl;
-    auto columnOrder = t.columnOrder(root);
+    auto columnOrder = t.columnOrder(bst);
     for (auto a : columnOrder)
     {
         cout << "  ";
@@ -758,7 +873,7 @@ void testTraversal(Node* root)
         cout << endl;
     }
     cout << "ZigZagOrder (LtR): " << endl;
-    auto zigZagLtROrder = t.zigZagOrder(root, true);
+    auto zigZagLtROrder = t.zigZagOrder(bst, true);
     for (auto a : zigZagLtROrder)
     {
         cout << "  ";
@@ -769,7 +884,7 @@ void testTraversal(Node* root)
         cout << endl;
     }
     cout << "ZigZagOrder(RtL): " << endl;
-    auto zigZagRtLOrder = t.zigZagOrder(root, false);
+    auto zigZagRtLOrder = t.zigZagOrder(bst, false);
     for (auto a : zigZagRtLOrder)
     {
         cout << "  ";
@@ -780,7 +895,7 @@ void testTraversal(Node* root)
         cout << endl;
     }
     cout << "Boundary(Anticlockwise):" << endl;
-    auto boundaryAnticlockwise = t.boundaryAnticlockwise(root);
+    auto boundaryAnticlockwise = t.boundaryAnticlockwise(bst);
     cout << "  ";
     for (auto a : boundaryAnticlockwise)
     {
@@ -789,24 +904,57 @@ void testTraversal(Node* root)
     cout << endl;
 }
 
-void testSearchBST(vector<int>& valuesToFind, Node* root)
+void testSearchBST()
 {
-    cout << "TEST SEARCH ON BSTs" << endl;
+    vector<int> input{ 1,2,3,4,5,6,7,8,9 };
+    BinarySearchTree bst;
+    bst.createTree(input);
     Search s;
 
-    cout << "Binary Search (assumes root is BST):" << endl;
-    vector<bool> toFind(valuesToFind.size() + 2, false);
-    for (int i = 0; i < toFind.size(); i++)
+    bool tempBool = false;
+    Node* tempNode = nullptr;
+    int val = -1;
+
     {
-        toFind[i] = s.findValueInBST(root, i, nullptr);
-    }
-    for (int i = 0; i < toFind.size(); i++)
-    {
-        cout << "  found(" << i << ")=" << toFind[i] << endl;
+        val = -1;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool == false && tempNode == nullptr);
+        val = 0;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool == false && tempNode == nullptr);
+        val = 1;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 2;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 3;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 4;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 5;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 6;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 7;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 8;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 9;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool != false && tempNode != nullptr && tempNode->val == val);
+        val = 10;
+        tempBool = s.findValue(bst, val, &tempNode);
+        assert(tempBool == false && tempNode == nullptr);
     }
 
     cout << "Find Lowest Common Ancestor in BST:" << endl;
-    int p, q;
     vector<pair<int, int>> lcaCandidates{
         { 10, 9 },
         { 1, 9 },
@@ -821,7 +969,7 @@ void testSearchBST(vector<int>& valuesToFind, Node* root)
     };
     for (auto a : lcaCandidates)
     {
-        Node* temp = s.findLowestCommonAncestorBST(root, a.first, a.second);
+        Node* temp = s.findLowestCommonAncestor(bst, a.first, a.second);
         if (temp != nullptr)
         {
             cout << "  lca(" << a.first << "," << a.second << ")="
@@ -836,67 +984,163 @@ void testSearchBST(vector<int>& valuesToFind, Node* root)
         }
     }
 
-    cout << "Inorder Successor Recursive (assumes root is BST):" << endl;
-    vector<int> toFindSuccessorRecursive(valuesToFind.size() + 2, false);
-    for (int i = 0; i < toFindSuccessorRecursive.size(); i++)
     {
-        Node* temp = s.findInorderSuccessorBSTRecursive(root, i);
-        if (temp == nullptr)
-        {
-            toFindSuccessorRecursive[i] = -1;
-        }
-        else
-        {
-            toFindSuccessorRecursive[i] = temp->val;
-        }
+        cout << "Inorder Successor Recursive (assumes root is BST):" << endl;
+        val = -1;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode == nullptr);
+        val = 0;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode == nullptr);
+        val = 1;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 2;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 3;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 4;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 5;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 6;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 7;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 8;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 9;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode == nullptr);
+        val = 10;
+        tempNode = s.findInorderSuccessorRecursive(bst, val);
+        assert(tempNode == nullptr);
     }
-    for (int i = 0; i < toFindSuccessorRecursive.size(); i++)
     {
-        cout << "  successor(" << i << ")=" 
-            << ((toFindSuccessorRecursive[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindSuccessorRecursive[i]))
-            << endl;
+        cout << "Inorder Successor Iterative (assumes root is BST):" << endl;
+        val = -1;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode == nullptr);
+        val = 0;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode == nullptr);
+        val = 1;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 2;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 3;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 4;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 5;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 6;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 7;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 8;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val + 1);
+        val = 9;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode == nullptr);
+        val = 10;
+        tempNode = s.findInorderSuccessorIterative(bst, val);
+        assert(tempNode == nullptr);
     }
 
-    cout << "Inorder Successor Iterative (assumes root is BST):" << endl;
-    vector<int> toFindSuccessorIterative(valuesToFind.size() + 2, false);
-    for (int i = 0; i < toFindSuccessorIterative.size(); i++)
+    cout << "Inorder Predecessor Recursive (assumes root is BST):" << endl;
     {
-        Node* temp = s.findInorderSuccessorBSTIterative(root, i);
-        if (temp == nullptr)
-        {
-            toFindSuccessorIterative[i] = -1;
-        }
-        else
-        {
-            toFindSuccessorIterative[i] = temp->val;
-        }
+        val = -1;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode == nullptr);
+        val = 0;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode == nullptr);
+        val = 1;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode == nullptr);
+        val = 2;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 3;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 4;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 5;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 6;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 7;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 8;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 9;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 10;
+        tempNode = s.findInorderPredecessorRecursive(bst, val);
+        assert(tempNode == nullptr);
     }
-    for (int i = 0; i < toFindSuccessorIterative.size(); i++)
+    
+    cout << "Inorder Predecessor Iterative (assumes root is BST):" << endl;
     {
-        cout << "  successor(" << i << ")="
-            << ((toFindSuccessorIterative[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindSuccessorIterative[i]))
-            << endl;
-    }
-
-    cout << "Inorder Predecessor (assumes root is BST):" << endl;
-    vector<int> toFindPredecessor(valuesToFind.size() + 2, false);
-    for (int i = 0; i < toFindPredecessor.size(); i++)
-    {
-        Node* temp = s.findInorderPredecessorBSTRecursive(root, i);
-        if (temp == nullptr)
-        {
-            toFindPredecessor[i] = -1;
-        }
-        else
-        {
-            toFindPredecessor[i] = temp->val;
-        }
-    }
-    for (int i = 0; i < toFindPredecessor.size(); i++)
-    {
-        cout << "  predecessor(" << i << ")="
-            << ((toFindPredecessor[i] == -1) ? "DOESN\'T EXIST!" : to_string(toFindPredecessor[i]))
-            << endl;
+        val = -1;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode == nullptr);
+        val = 0;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode == nullptr);
+        val = 1;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode == nullptr);
+        val = 2;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 3;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 4;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 5;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 6;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 7;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 8;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 9;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode != nullptr && tempNode->val == val - 1);
+        val = 10;
+        tempNode = s.findInorderPredecessorIterative(bst, val);
+        assert(tempNode == nullptr);
     }
 }
 
@@ -910,15 +1154,11 @@ int main()
     }
     cout << endl;
 
-    Node* root1 = nullptr;
-    CreateBalancedBST cbb;
-    root1 = cbb.createBalancedBST(input);
+    testProperties();
 
-    testProperties(root1);
+    testTraversal();
 
-    testTraversal(root1);
-
-    testSearchBST(input, root1);
+    testSearchBST();
 
 
     return 0;
