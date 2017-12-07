@@ -12,6 +12,16 @@
 
 using namespace std;
 
+//
+// NOTES
+// Preorder traversal is Data, Left, Right.
+// Postorder traversal is typically Left, Right, Data.
+// However you can can also get a Postorder traversal by doing a preorder with the child nodes swapped. The output will be 
+// backwards also so you'll need to reverse it.
+// Hence PostOrder is Left, Right, Data. OR Data, Right, Left followed by reversal of the data
+//
+
+
 struct Node
 {
     int val;
