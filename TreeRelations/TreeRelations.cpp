@@ -137,10 +137,33 @@ private:
 class Traversal
 {
 public:
-    vector<int> preOrder(BinaryTree& bt)
+    vector<int> preOrderRecursive(BinaryTree& bt)
     {
         vector<int> result;
         _preOrder(bt.getRoot(), result);
+        return result;
+    }
+
+    vector<int> preOrderIterative(BinaryTree& bt)
+    {
+        vector<int> result;
+        Node* root = bt.getRoot();
+        stack<Node*> stk;
+        while (stk.empty() == false || root != nullptr)
+        {
+            if (root != nullptr)
+            {
+                stk.push(root);
+                result.push_back(root->val);
+                root = root->left;
+            }
+            else
+            {
+                Node* temp = stk.top();
+                stk.pop();
+                root = temp->right;
+            }
+        }
         return result;
     }
 
@@ -155,32 +178,59 @@ public:
     {
         vector<int> result;
         Node* root = bt.getRoot();
-        if (root == nullptr)
-        {
-            return result;
-        }
-
         stack <Node*> stk;
-        _pushLeft(root, stk);
-        while (stk.empty() == false)
+        while (stk.empty() == false || root != nullptr)
         {
-            Node* temp = stk.top();
-            stk.pop();
-
-            result.push_back(temp->val);
-
-            if (temp->right)
+            if (root != nullptr)
             {
-                _pushLeft(temp->right, stk);
+                stk.push(root);
+                root = root->left;
+            }
+            else
+            {
+                Node* temp = stk.top();
+                stk.pop();
+                result.push_back(temp->val);
+                root = temp->right;
             }
         }
         return result;
     }
 
-    vector<int> postOrder(BinaryTree& bt)
+    vector<int> postOrderRecursive(BinaryTree& bt)
     {
         vector<int> result;
         _postOrder(bt.getRoot(), result);
+        return result;
+    }
+
+    vector<int> postOrderIterative(BinaryTree& bt)
+    {
+        vector<int> result;
+        vector<int> tempResult; // alternatively, you could use a deque and push_front to it instead of having to reverse the list later on
+        Node* root = bt.getRoot();
+        stack<Node*> stk;
+        while (stk.empty() == false || root != nullptr)
+        {
+            if (root != nullptr)
+            {
+                tempResult.push_back(root->val);
+                stk.push(root);
+                root = root->right;
+            }
+            else
+            {
+                Node* temp = stk.top();
+                stk.pop();
+                root = temp->left;
+            }
+        }
+
+        // reverse the order since this postOrder
+        for (auto iter = tempResult.rbegin(); iter != tempResult.rend(); ++iter)
+        {
+            result.push_back(*iter);
+        }
         return result;
     }
 
@@ -818,14 +868,28 @@ void testTraversal()
     cout << "TEST TRAVERSAL" << endl;
     Traversal t;
 
-    auto preOrder = t.preOrder(bst);
-    cout << "Preorder: " << endl;
+    auto preOrderRecursive = t.preOrderRecursive(bst);
+    cout << "Preorder Recursive: " << endl;
     cout << "  ";
-    for (auto a : preOrder)
+    for (auto a : preOrderRecursive)
     {
         cout << a << " ";
     }
     cout << endl;
+    auto preOrderIterative = t.preOrderIterative(bst);
+    cout << "Preorder Iterative: " << endl;
+    cout << "  ";
+    for (auto a : preOrderIterative)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
+    assert(preOrderRecursive.size() == preOrderIterative.size());
+    for (int i = 0; i < preOrderRecursive.size(); i++)
+    {
+        assert(preOrderRecursive[i] == preOrderIterative[i]);
+    }
+
     cout << "Inorder Recursive: " << endl;
     cout << "  ";
     auto inOrderRecursive = t.inOrderRecursive(bst);
@@ -842,14 +906,35 @@ void testTraversal()
         cout << a << " ";
     }
     cout << endl;
-    cout << "Postorder: " << endl;
+    assert(inOrderRecursive.size() == inOrderIterative.size());
+    for (int i = 0; i < inOrderRecursive.size(); i++)
+    {
+        assert(inOrderRecursive[i] == inOrderIterative[i]);
+    }
+
+    cout << "Postorder Recursive: " << endl;
     cout << "  ";
-    auto postOrder = t.postOrder(bst);
-    for (auto a : postOrder)
+    auto postOrderRecursive = t.postOrderRecursive(bst);
+    for (auto a : postOrderRecursive)
     {
         cout << a << " ";
     }
     cout << endl;
+    cout << "Postorder Iterative: " << endl;
+    cout << "  ";
+    auto postOrderIterative = t.postOrderIterative(bst);
+    for (auto a : postOrderIterative)
+    {
+        cout << a << " ";
+    }
+    cout << endl;
+    assert(postOrderRecursive.size() == postOrderIterative.size());
+    for (int i = 0; i < postOrderRecursive.size(); i++)
+    {
+        assert(postOrderRecursive[i] == postOrderIterative[i]);
+    }
+
+
     cout << "LevelOrder: " << endl;
     auto levelOrder = t.levelOrder(bst);
     for (auto a : levelOrder)
