@@ -163,8 +163,8 @@ public:
         {
             if (root != nullptr)
             {
-                stk.push(root);
                 result.push_back(root->val);
+                stk.push(root);
                 root = root->left;
             }
             else
