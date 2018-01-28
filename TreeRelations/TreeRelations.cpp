@@ -881,6 +881,59 @@ private:
     }
 };
 
+class Conversion
+{
+public:
+    Node* treeToCircularDoubleLinkedList(BinaryTree& bt)
+    {
+        Node* result = _binaryTreeToCDLLRecur(bt.getRoot());
+    }
+private:
+    Node* _binaryTreeToCDLLRecur(Node* root)
+    {
+        if (root == nullptr)
+        {
+            return nullptr;
+        }
+
+        Node* list1 = _binaryTreeToCDLLRecur(root->left);
+        Node* list2 = _binaryTreeToCDLLRecur(root->right);
+
+        // make this node circular
+        root->left = root;
+        root->right = root;
+
+        // concatinate lists
+        Node* result = _concatinateLists(list1, root);
+        result = _concatinateLists(result, list2);
+        return result;
+    }
+
+    Node* _concatinateLists(Node* head1, Node* head2)
+    {
+        if (head1 == nullptr)
+        {
+            return head2;
+        }
+        if (head2 == nullptr)
+        {
+            return head1;
+        }
+
+        // head1 and head2 are individually circular so we can access tail easily
+        Node* tail1 = head1->left;
+        Node* tail2 = head2->left;
+
+        tail1->right = head2;
+        head2->left = tail1;
+
+        head1->left = tail2;
+        tail2->right = head1;
+
+        return head1;
+    }
+};
+
 void testProperties()
 {
     cout << "TEST PROPERTIES OF TREES" << endl;
