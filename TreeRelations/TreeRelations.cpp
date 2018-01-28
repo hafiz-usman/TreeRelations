@@ -516,7 +516,7 @@ private:
     }
 };
 
-class Search 
+class Search
 {
 public:
     bool findValue(BinarySearchTree& bst, int val, Node** result)
@@ -552,26 +552,9 @@ public:
         return ret;
     }
 
-    // todo: clean-up (using BinaryTree&) and test!!!!
-    Node* findLowestCommonAncestorRecursive(Node* root, Node* p, Node* q)
+    Node* findLowestCommonAncestorRecursive(BinaryTree& bt, Node* p, Node* q)
     {
-        if ((root == nullptr) ||
-            (p == root) ||
-            (q == root))
-        {
-            return root;
-        }
-        Node* left = findLowestCommonAncestorRecursive(root->left, p, q);
-        Node* right = findLowestCommonAncestorRecursive(root->right, p, q);
-        if (left == nullptr)
-        {
-            return right;
-        }
-        if (right == nullptr)
-        {
-            return left;
-        }
-        return root;
+        return _findLowestCommonAncestorRecursive(bt.getRoot(), p, q);
     }
 
     // NOTE: This technique assumes both p and q exist in the BST!
@@ -825,6 +808,28 @@ private:
         while (root->left != nullptr)
         {
             root = root->left;
+        }
+        return root;
+    }
+
+    Node* _findLowestCommonAncestorRecursive(Node* root, Node* p, Node* q)
+    {
+        // for Binary Trees (not BST)
+        if ((root == nullptr) ||
+            (p == root) ||
+            (q == root))
+        {
+            return root;
+        }
+        Node* left = _findLowestCommonAncestorRecursive(root->left, p, q);
+        Node* right = _findLowestCommonAncestorRecursive(root->right, p, q);
+        if (left == nullptr)
+        {
+            return right;
+        }
+        if (right == nullptr)
+        {
+            return left;
         }
         return root;
     }
